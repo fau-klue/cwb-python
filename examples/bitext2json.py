@@ -6,7 +6,7 @@ from CWB.CL import Corpus
 from gzip import GzipFile
 from itertools import izip
 
-__doc__='''
+__doc__ = '''
 Tools to write a JSON-format aligned corpus
 (with original word forms and sentence ID hints)
 from the output of PostCAT or fast_align
@@ -18,9 +18,9 @@ Test with:
 
 try:
     from pcfg_site_config import get_config_var
-    CQP_REGISTRY=get_config_var('pycwb.cqp_registry')
+    CQP_REGISTRY = get_config_var('pycwb.cqp_registry')
 except ImportError:
-    CQP_REGISTRY=None
+    CQP_REGISTRY = None
 except KeyError:
     CQP_REGISTRY=None
 
@@ -48,7 +48,7 @@ def get_alignments(corpus1, corpus2,
     words2=corpus2.words
     sent=corpus1.sentences
     for start1, end1, start2, end2 in att_align:
-        if (max_len is not None and 
+        if (max_len is not None and
                 (end1-start1+1>=max_len or
                  end2-start2+1>=max_len)):
             continue

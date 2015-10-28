@@ -43,7 +43,7 @@ setup(
     author='Yannick Versley / Jorg Asmussen',
     author_email='yversley@googlemail.com',
     url='https://bitbucket.org/yannick/cwb-python',
-    version='0.1b',
+    version='0.1b1',
     ext_modules=lazy_cythonize(extensions),
     py_modules=['PyCQP_interface'],
     packages=['CWB', 'CWB.tools'],

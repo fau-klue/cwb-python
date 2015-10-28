@@ -1,4 +1,5 @@
 import codecs
+from cpython.version cimport PY_MAJOR_VERSION
 
 cdef public object registry
 
@@ -19,10 +20,14 @@ cdef class Corpus:
   def __cinit__(self, cname, encoding=None, registry_dir=None):
     if registry_dir is None:
       registry_dir=registry
+    if isinstance(registry_dir, unicode):
+        registry_dir = registry_dir.encode('ascii')
+    self.name=cname
+    if isinstance(cname, unicode):
+        cname = cname.encode('ascii')
     self.corpus=cl_new_corpus(registry_dir,cname)
     if self.corpus==NULL:
       raise KeyError(cname)
-    self.name=cname
     if encoding is None:
       encoding=self.get_encoding()
     self.charset_decoder=codecs.getdecoder(encoding)
@@ -32,6 +37,11 @@ cdef class Corpus:
       return self.charset_encoder(s)[0]
     else:
       return s
+  cpdef unicode to_unicode(self, s):
+    if isinstance(s,unicode):
+      return s
+    else:
+      return self.charset_decoder(s)[0]
   def get_encoding(self):
     cdef const char *s
     cdef CorpusCharset cset
@@ -40,12 +50,10 @@ cdef class Corpus:
     if s in encoding_names:
         return encoding_names[s]
     else:
-        return s
-  cpdef unicode to_unicode(self, s):
-    if isinstance(s,unicode):
-      return s
-    else:
-      return self.charset_decoder(s)[0]
+        if PY_MAJOR_VERSION >= 3:
+            return bytes(s).decode('ascii')
+        else:
+            return s
   def __repr__(self):
       return "cwb.CL.Corpus('%s')"%(self.name)
   def __dealloc__(self):
@@ -209,33 +217,45 @@ cdef class PosAttrib:
     return "cwb.Attribute(%s,'%s')"%(self.parent,self.attname)
   def __cinit__(self,Corpus parent,attname):
     self.parent=parent
+    self.attname=attname
+    if isinstance(attname, unicode):
+        attname = attname.encode('ascii')
     self.att=cl_new_attribute(parent.corpus,attname,ATT_POS)
     if self.att==NULL:
       raise KeyError
-    self.attname=attname
   def getName(self):
     return self.attname
   def getDictionary(self):
     return AttrDictionary(self)
   def __getitem__(self,offset):
     cdef int i
+    cdef bytes _result
     if isinstance(offset,int):
       if offset<0 or offset>=len(self):
         raise IndexError('P-attribute offset out of bounds')
-      return cl_cpos2str(self.att,offset)
+      _result = cl_cpos2str(self.att, offset)
+      if PY_MAJOR_VERSION >= 3:
+          return self.parent.to_unicode(_result)
+      else:
+          return _result
     else:
       result=[]
       if offset.start<0 or offset.stop<offset.start or offset.stop>len(self):
         raise IndexError('P-attribute offset out of bounds')
-      for i from offset.start<=i<offset.stop:
-        result.append(cl_cpos2str(self.att,i))
+      if PY_MAJOR_VERSION >= 3:
+        for i from offset.start<=i<offset.stop:
+            _result = cl_cpos2str(self.att, i)
+            result.append(self.parent.to_unicode(_result))
+      else:
+        for i from offset.start<=i<offset.stop:
+            result.append(cl_cpos2str(self.att,i))
       return result
   cpdef cpos2id(self,int offset):
     return cl_cpos2id(self.att,offset)
   def find(self,tag):
     cdef int tagid
     cdef IDList lst
-    cdef object tag_s=self.parent.to_str(tag)
+    cdef bytes tag_s=self.parent.to_str(tag)
     tagid=cl_str2id(self.att,tag_s)
     if tagid<0:
       raise KeyError

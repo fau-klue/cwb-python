@@ -1,10 +1,13 @@
+from __future__ import print_function
+
 import sys
 import optparse
 from CWB.CL import Corpus
 
 try:
-    from pcfg_site_config import get_config_var
-    CQP_REGISTRY = get_config_var('pycwb.cqp_registry')
+    from pathconfig import load_configuration
+    ctx = load_configuration('pynlp')
+    CQP_REGISTRY = ctx.get_config_var('pycwb.cqp_registry')
 except ImportError:
     CQP_REGISTRY = None
 except KeyError:
@@ -37,8 +40,8 @@ def output_sentences(sent_attr, attrs, sent_start=0, sent_end=None, f_out=None):
                         elif s == 'ROOT':
                             s = '0'
                     line.append(s)
-            print '\t'.join(line)
-        print
+            print('\t'.join(line))
+        print()
 
 
 def output_sentences_line(sent_attr, attrs, sent_start=0, sent_end=None, f_out=None):
@@ -49,7 +52,7 @@ def output_sentences_line(sent_attr, attrs, sent_start=0, sent_end=None, f_out=N
     for sent_no in xrange(sent_start, sent_end):
         (off_start, off_end) = sent_attr[sent_no][:2]
         line = attrs[0][off_start:off_end + 1]
-        print >>f_out, ' '.join(line)
+        print(' '.join(line), file=f_out)
 
 
 def output_sentences_bllip(sent_attr, attrs, sent_start=0, sent_end=None,
@@ -63,8 +66,9 @@ def output_sentences_bllip(sent_attr, attrs, sent_start=0, sent_end=None,
         if max_len is not None and off_end - off_start >= max_len:
             continue
         line = attrs[0][off_start:off_end + 1]
-        print >>f_out, '<s %s_%d> %s </s>' % (corpus_name,
-                                              sent_no, ' '.join(line))
+        print('<s %s_%d> %s </s>' % (corpus_name,
+                                     sent_no, ' '.join(line)),
+              file=f_out)
 
 oparse = optparse.OptionParser(usage='''%prog [options] CORPUS
 extracts parts of a corpus in CoNLL (or other) format''')

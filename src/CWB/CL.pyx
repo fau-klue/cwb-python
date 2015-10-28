@@ -330,11 +330,13 @@ cdef class AttStruc:
     return "CWB.CL.AttrStruct(%s,'%s')"%(self.parent,self.attname)
   def __cinit__(self,Corpus parent,attname):
     self.parent=parent
+    self.attname=attname
+    if isinstance(attname, unicode):
+        attname = attname.encode('ascii')
     self.att=cl_new_attribute(parent.corpus,attname,ATT_STRUC)
     if self.att==NULL:
       raise KeyError
     self.has_values=cl_struc_values(self.att)
-    self.attname=attname
   def getName(self):
     return self.attname
   def find_all(self,tags):
@@ -389,11 +391,13 @@ cdef class AlignAttrib:
     return "CWB.CL.AlignAttrib(%s,'%s')"%(self.parent,self.attname)
   def __cinit__(self,Corpus parent,attname):
     self.parent=parent
+    self.attname=attname
+    if isinstance(attname, unicode):
+        attname = attname.encode('ascii')
     self.att=cl_new_attribute(parent.corpus,attname,ATT_ALIGN)
     if self.att==NULL:
       raise KeyError
     self.has_values=cl_struc_values(self.att)
-    self.attname=attname
   def getName(self):
     return self.attname
   def cpos2alg(self,cpos):

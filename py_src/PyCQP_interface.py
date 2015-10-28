@@ -12,7 +12,7 @@ import re
 import random
 import string
 import time
-import thread
+from six.moves import _thread as thread
 
 # Modules for running CQP as child process and pipe i/o
 # (standard in newer Python):

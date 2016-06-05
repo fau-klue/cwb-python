@@ -6,6 +6,9 @@ To install the module, please use the standard
  sudo python setup.py install
 command sequence.
 
+As a prerequisite, install Cython with
+ pip install Cython
+
 If you use the newest version of CQP (CWB 3.0), you need to
 change the value of the "extra_libs" variable in setup.py.
 

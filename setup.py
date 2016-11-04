@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, Extension
+from os import popen
+from os.path import dirname, join
 
 class lazy_cythonize(list):
     def __init__(self, callback):
@@ -17,19 +19,23 @@ class lazy_cythonize(list):
         return len(self.c_list())
 
 # for CWB 2.2
-extra_libs = []
+#extra_libs = []
 # for CWB >= 3.0
-# extra_libs=['pcre','glib-2.0']
+extra_libs=['pcre','glib-2.0']
+
+cqp_location = popen('which cqp').read().rstrip()
+cqp_dir = dirname(cqp_location)
 
 def extensions():
     try:
         from Cython.Build import cythonize
-        incdirs=['src']
+        incdirs=['src', join(cqp_dir, 'include')]
     except ImportError:
         cythonize = lambda x: x
         incdirs = []
     ext_modules= [Extension('CWB.CL', ['src/CWB/CL.pyx'],
-                            include_dirs=['src'],
+                            include_dirs=incdirs,
+                            library_dirs=[join(cqp_dir, 'lib')],
                             language='c++',
                             libraries=['cl'] + extra_libs)]
     return cythonize(ext_modules)

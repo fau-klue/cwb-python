@@ -5,7 +5,7 @@ cdef extern from "stdlib.h":
 cdef extern from "string.h":
   int strcmp(char *, char *)
 
-cdef extern from "cl_cpp.h":
+cdef extern from "cwb/cl.h":
   int ATT_NONE
   int ATT_POS
   int ATT_STRUC

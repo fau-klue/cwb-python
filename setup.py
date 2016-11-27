@@ -1,44 +1,54 @@
 #!/usr/bin/env python
 from setuptools import setup, Extension
+import os
 from os import popen
 from os.path import dirname, join
 
+
 class lazy_cythonize(list):
+
     def __init__(self, callback):
         self._list = None
         self.callback = callback
+
     def c_list(self):
         if self._list is None:
             self._list = self.callback()
         return self._list
+
     def __iter__(self):
         return iter(self.c_list())
+
     def __getitem__(self, ii):
         return self.c_list()[ii]
+
     def __len__(self):
         return len(self.c_list())
 
 # for CWB 2.2
 #extra_libs = []
 # for CWB >= 3.0
-extra_libs=['pcre','glib-2.0']
+extra_libs = ['pcre', 'glib-2.0']
 
-cqp_location = popen('which cqp').read().rstrip()
-cqp_dir = dirname(cqp_location)
+if 'CWB_DIR' in os.environ:
+    cqp_dir = os.environ['CWB_DIR']
+else:
+    cqp_location = popen('which cqp').read().rstrip()
+    cqp_dir = dirname(cqp_location)
 
 def extensions():
     try:
         from Cython.Build import cythonize
-        incdirs=['src', join(cqp_dir, 'include')]
+        incdirs = ['src', join(cqp_dir, 'include')]
     except ImportError:
         cythonize = lambda x: x
         incdirs = []
-    ext_modules= [Extension('CWB.CL', ['src/CWB/CL.pyx'],
-                            include_dirs=incdirs,
-                            library_dirs=[join(cqp_dir, 'lib')],
-                            language='c++',
-                            libraries=['cl'] + extra_libs)]
+    ext_modules = [Extension('CWB.CL', ['src/CWB/CL.pyx'],
+                             include_dirs=incdirs,
+                             library_dirs=[join(cqp_dir, 'lib')],
+                             libraries=['cl'] + extra_libs)]
     return cythonize(ext_modules)
+
 
 def read(fname):
     return open(fname).read()

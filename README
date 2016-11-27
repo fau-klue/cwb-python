@@ -1,7 +1,11 @@
 This is a Python wrapper to the low-level API of CQP which allows
 you to access CQP corpora in the same way as Perl's CWB::CL
 
-To install the module, please use the standard
+If you installed CQP in a non-standard location (which is the default for
+newer versions of CQP), point the setup in the right direction with, e.g.
+ export CWB_DIR=/usr/local/cwb-3.4.10
+
+To install the module, use the standard
  python setup.py build
  sudo python setup.py install
 command sequence.
@@ -9,10 +13,10 @@ command sequence.
 As a prerequisite, install Cython with
  pip install Cython
 
-If you use the newest version of CQP (CWB 3.0), you need to
+If you use an old version of CQP (CWB 2.99 and older), you need to
 change the value of the "extra_libs" variable in setup.py.
 
-To give you an idea how this works, see the following sample:
+To give you an idea how to use the library, see the following sample:
 
 --- 8< ---
 from CWB.CL import Corpus

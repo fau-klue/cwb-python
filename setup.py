@@ -57,7 +57,7 @@ setup(
     name='cwb-python',
     description='CQP and CL interfaces for Python',
     author='Yannick Versley / Jorg Asmussen',
-    version='0.2',
+    version='0.2.1',
     author_email='yversley@googlemail.com',
     url='https://bitbucket.org/yannick/cwb-python',
     ext_modules=lazy_cythonize(extensions),

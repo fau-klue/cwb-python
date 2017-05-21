@@ -1,0 +1,38 @@
+These tests require the SPMRL_SWE corpus in order to check for encoding and
+decoding troubles under both Python 2.7 and Python 3.
+
+>>> from CWB.CL import Corpus
+>>> crp = Corpus('SPMRL_SWE')
+>>> word_att = crp.attribute('word', 'p')
+>>> word_att[0:2]
+['Individuell', 'beskattning']
+
+By default, attributes return the default string type
+
+>>> word_att[6] == 'införs'
+True
+
+The necessary conversions are possible because a corpus has a notion of the
+encoding it is in
+>>> bytes_1 = crp.to_str(u'inneb\u00e4r')
+>>> bytes_1 == b'inneb\xc3\xa4r'
+True
+>>> uni_1 = crp.to_unicode(b'inneb\xc3\xa4r')
+>>> uni_1 == u'inneb\u00e4r'
+True
+>>> uni_1 == bytes_1.decode('UTF-8')
+True
+
+However, you can use both unicode and byte strings in finding and accessing
+tokens
+
+>>> offsets1 = word_att.find(u'beskattning')
+>>> offsets2 = word_att.find(b'beskattning')
+>>> list(offsets1) == list(offsets2)
+True
+>>> offsets1 = list(word_att.find(u'inneb\u00e4r'))
+>>> offsets1[:5]
+[16, 2115, 7229, 7864, 9183]
+>>> offsets2 = list(word_att.find(u'inneb\u00e4r'.encode('UTF-8')))
+>>> offsets1 == offsets2
+True

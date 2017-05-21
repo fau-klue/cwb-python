@@ -8,6 +8,7 @@
 from __future__ import print_function
 
 # Import external standard Python modules used by this module:
+from __future__ import print_function
 import sys
 import os
 import re
@@ -15,6 +16,7 @@ import random
 import string
 import time
 from six.moves import _thread as thread
+
 
 # Modules for running CQP as child process and pipe i/o
 # (standard in newer Python):
@@ -232,6 +234,8 @@ class CQP:
                 print(
                     "ERROR: Invalid value for first ({}) or last ({}) line in Dump() method".format(first, last), file=sys.stderr)
                 sys.exit(1)
+        else:
+            first=last=''
         matches = []
         result = re.split(r'\n', self.Exec('dump ' + subcorpus +
                                            " " + first + " " + last))

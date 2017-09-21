@@ -91,7 +91,7 @@ class CQP:
         version_string = version_string.rstrip()  # Equivalent to Perl's chomp
         print(version_string, file=sys.stderr)
         version_regexp = re.compile(
-            r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
+            rb'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
         match = version_regexp.match(version_string)
         if not match:
             print("ERROR: CQP backend startup failed", file=sys.stderr)
@@ -143,7 +143,7 @@ class CQP:
             self.execStart = time.time()
             if self.debug:
                 print("Shutting down CQP backend ...", end='')
-            self.CQP_process.stdin.write('exit;')  # exits CQP backend
+            self.CQP_process.stdin.write(b'exit;')  # exits CQP backend
             if self.debug:
                 print("Done\nCQP object deleted.")
             self.execStart = None
@@ -158,11 +158,16 @@ class CQP:
         self.execStart = time.time()
         self.status = 'ok'
         cmd = cmd.rstrip()  # Equivalent to Perl's 'chomp'
-        cmd = re.sub(r';\s*$', r'', cmd)
+        if isinstance(cmd, str):
+            cmd = cmd.encode('utf-8')
+        cmd = re.sub(rb';\s*$', rb'', cmd)
         if self.debug:
             print("CQP <<", cmd + ";")
         try:
-            self.CQP_process.stdin.write(cmd + '; .EOL.;\n')
+            if isinstance(cmd, str):
+                cmd = cmd.encode('utf-8')
+            cmd += b'; .EOL.;\n'
+            self.CQP_process.stdin.write(cmd)
         except IOError:
             return None
         # In CQP.pm lines are appended to a list @result.
@@ -175,8 +180,10 @@ class CQP:
         # language dependent protocol.
         result = ''
         while self.CQPrunning:
+            self.CQP_process.stdin.flush()  # `stdout.readline` will hang without `stdin.flush`
             ln = self.CQP_process.stdout.readline()
             ln = ln.strip()  # strip off whitespace from start and end of line
+            ln = ln.decode('utf-8')
             if re.match(r'-::-EOL-::-', ln):
                 if self.debug:
                     print("CQP "+"-" * 60)

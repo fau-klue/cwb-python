@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "==4.4.2"
+pylint = "==2.3.1"
+pytest-cov = "==2.7.1"
+cython = "==0.29.7"
+twine = "==1.13.0"
+
+[packages]
+
+[requires]
+python_version = "3.5"

@@ -74,10 +74,11 @@ class CQP:
     def __init__(self, bin=None, options=''):
         self.execStart = time.time()
         self.maxProcCycles = 1.0
+
         # start CQP as a child process of this wrapper
         if bin == None:
-            print("ERROR: Path to CQP binaries undefined", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('Path to CQP binaries undefined')
+
         self.CQP_process = subprocess.Popen(bin + ' ' + options,
                                             shell=True,
                                             stdin=subprocess.PIPE,
@@ -90,12 +91,13 @@ class CQP:
         version_string = self.CQP_process.stdout.readline()
         version_string = version_string.rstrip()  # Equivalent to Perl's chomp
         print(version_string, file=sys.stderr)
-        version_regexp = re.compile(
-            rb'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
+
+        version_regexp = re.compile(r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
         match = version_regexp.match(version_string)
+
         if not match:
-            print("ERROR: CQP backend startup failed", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('CQP backend startup failed')
+
         self.major_version = int(match.group(1))
         self.minor_version = int(match.group(2))
         self.beta_version = int(match.group(3))
@@ -108,8 +110,7 @@ class CQP:
                 and self.minor_version == 2
                 and self.beta_version >= 41)
         ):
-            print("ERROR: CQP version too old: " + version_string, file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('CQP {} version is too old'.format(version_string))
 
         # Error handling:
         self.error_handler = None

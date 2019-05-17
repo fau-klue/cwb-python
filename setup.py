@@ -26,14 +26,13 @@ here = os.path.abspath(os.path.dirname(__file__))
 # for CWB 2.2
 # extra_libs = []
 # for CWB >= 3.0
-
 extra_libs = ['pcre', 'glib-2.0']
 
 if 'CWB_DIR' in os.environ:
     cqp_dir = os.environ['CWB_DIR']
 else:
+    # TODO: Make dynamic if possible
     cqp_location = '/usr/local/cwb-3.4.14/bin/cqp'
-    # cqp_location = os.popen('which cqp').read().rstrip()
     cqp_dir = os.path.dirname(cqp_location)
 
 
@@ -49,14 +48,14 @@ try:
     from Cython.Build import cythonize
     CYTHON_INSTALLED = True
     # Cython Code
-    extensions =[Extension('CWB.CL', ['cwb-python/CWB/CL.pyx'],
+    extensions =[Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.pyx'],
                            library_dirs=[os.path.join(cqp_dir, 'lib')],
                            libraries=['cl'] + extra_libs)]
 except ImportError:
     cythonize = lambda x, *args, **kwargs: x # dummy func
     CYTHON_INSTALLED = False
     # Already compiled Cython
-    extensions =[Extension('CWB.CL', ['cwb-python/CWB/CL.c'],
+    extensions =[Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.c'],
                            library_dirs=[os.path.join(cqp_dir, 'lib')],
                            libraries=['cl'] + extra_libs)]
 
@@ -74,11 +73,11 @@ setup(
     ext_modules=cythonize(extensions),
     install_requires=REQUIRED,
     include_package_data=True,
-    py_modules=['PyCQP_interface'],
+    py_modules=['CQP'],
     entry_points={
         'console_scripts': [
             'cqp2conll = CWB.tools.cqp2conll:main',
             'cqp_bitext = CWB.tools.make_bitext:main',
             'cqp_vocab = CWB.tools.cqp2vocab:cqp2vocab_main'
         ]},
-    package_dir={'cwb-python': 'cwb-python'})
+    package_dir={'cwb-python': 'cwb_python'})

@@ -13,12 +13,19 @@ To install the module, use the standard command sequence.
     python setup.py build
     sudo python setup.py install
 
-As a prerequisite, install Cython with
+# Cython Compilation
+
+As a prerequisite, install Cython with:
 
     pip install Cython
 
 If you use an old version of CQP (CWB 2.99 and older), you need to
 change the value of the "extra_libs" variable in setup.py.
+
+    # libglib2.0-0 libglib2.0-dev are required
+    make compile
+
+# Usage
 
 To give you an idea how to use the library, see the following sample:
 

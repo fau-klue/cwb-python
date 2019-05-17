@@ -3,9 +3,9 @@ install:
 test:
 	pipenv run pytest -v
 lint:
-	pipenv run pylint --rcfile=.pylintrc cwb-python/*.py
+	pipenv run pylint --rcfile=.pylintrc cwb_python/*.py
 coverage:
-	pipenv run pytest --cov-report term-missing -v --cov=cwb-python
+	pipenv run pytest --cov-report term-missing -v --cov=cwb_python
 compile:
 	pipenv run python3 setup.py build_ext --inplace
 build:

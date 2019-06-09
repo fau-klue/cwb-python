@@ -74,10 +74,11 @@ class CQP:
     def __init__(self, bin=None, options=''):
         self.execStart = time.time()
         self.maxProcCycles = 1.0
+
         # start CQP as a child process of this wrapper
         if bin == None:
-            print("ERROR: Path to CQP binaries undefined", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('Path to CQP binaries undefined')
+
         self.CQP_process = subprocess.Popen(bin + ' ' + options,
                                             shell=True,
                                             stdin=subprocess.PIPE,
@@ -90,12 +91,13 @@ class CQP:
         version_string = self.CQP_process.stdout.readline()
         version_string = version_string.rstrip()  # Equivalent to Perl's chomp
         print(version_string, file=sys.stderr)
-        version_regexp = re.compile(
-            r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
+
+        version_regexp = re.compile(r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
         match = version_regexp.match(version_string)
+
         if not match:
-            print("ERROR: CQP backend startup failed", file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('CQP backend startup failed')
+
         self.major_version = int(match.group(1))
         self.minor_version = int(match.group(2))
         self.beta_version = int(match.group(3))
@@ -108,8 +110,7 @@ class CQP:
                 and self.minor_version == 2
                 and self.beta_version >= 41)
         ):
-            print("ERROR: CQP version too old: " + version_string, file=sys.stderr)
-            sys.exit(1)
+            raise RuntimeError('CQP {} version is too old'.format(version_string))
 
         # Error handling:
         self.error_handler = None
@@ -143,7 +144,7 @@ class CQP:
             self.execStart = time.time()
             if self.debug:
                 print("Shutting down CQP backend ...", end='')
-            self.CQP_process.stdin.write('exit;')  # exits CQP backend
+            self.CQP_process.stdin.write(b'exit;')  # exits CQP backend
             if self.debug:
                 print("Done\nCQP object deleted.")
             self.execStart = None
@@ -158,11 +159,16 @@ class CQP:
         self.execStart = time.time()
         self.status = 'ok'
         cmd = cmd.rstrip()  # Equivalent to Perl's 'chomp'
-        cmd = re.sub(r';\s*$', r'', cmd)
+        if isinstance(cmd, str):
+            cmd = cmd.encode('utf-8')
+        cmd = re.sub(rb';\s*$', rb'', cmd)
         if self.debug:
             print("CQP <<", cmd + ";")
         try:
-            self.CQP_process.stdin.write(cmd + '; .EOL.;\n')
+            if isinstance(cmd, str):
+                cmd = cmd.encode('utf-8')
+            cmd += b'; .EOL.;\n'
+            self.CQP_process.stdin.write(cmd)
         except IOError:
             return None
         # In CQP.pm lines are appended to a list @result.
@@ -175,8 +181,10 @@ class CQP:
         # language dependent protocol.
         result = ''
         while self.CQPrunning:
+            self.CQP_process.stdin.flush()  # `stdout.readline` will hang without `stdin.flush`
             ln = self.CQP_process.stdout.readline()
             ln = ln.strip()  # strip off whitespace from start and end of line
+            ln = ln.decode('utf-8')
             if re.match(r'-::-EOL-::-', ln):
                 if self.debug:
                     print("CQP "+"-" * 60)

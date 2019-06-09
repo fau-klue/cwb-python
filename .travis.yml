@@ -1,0 +1,12 @@
+dist: xenial
+language: python
+script:
+  - 'make $TEST'
+install:
+  - pip3 install -q pipenv
+  - make install
+matrix:
+  fast_finish: true
+  include:
+    - env: TEST='test'
+      python: '3.7'

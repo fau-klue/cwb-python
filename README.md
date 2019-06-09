@@ -1,24 +1,35 @@
+# CWB Python
+
 This is a Python wrapper to the low-level API of CQP which allows
 you to access CQP corpora in the same way as Perl's CWB::CL
 
 If you installed CQP in a non-standard location (which is the default for
 newer versions of CQP), point the setup in the right direction with, e.g.
- export CWB_DIR=/usr/local/cwb-3.4.10
 
-To install the module, use the standard
- python setup.py build
- sudo python setup.py install
-command sequence.
+    export CWB_DIR=/usr/local/cwb-3.4.10
 
-As a prerequisite, install Cython with
- pip install Cython
+To install the module, use the standard command sequence.
+
+    python setup.py build
+    sudo python setup.py install
+
+# Cython Compilation
+
+As a prerequisite, install Cython with:
+
+    pip install Cython
 
 If you use an old version of CQP (CWB 2.99 and older), you need to
 change the value of the "extra_libs" variable in setup.py.
 
+    # libglib2.0-0 libglib2.0-dev are required
+    make compile
+
+# Usage
+
 To give you an idea how to use the library, see the following sample:
 
---- 8< ---
+```python
 from CWB.CL import Corpus
 
 # open the corpus
@@ -32,10 +43,11 @@ s_1234=sentences[1234]
 
 for w,p in zip(words[s_1234[0]:s_1234[1]+1],postags[s_1234[0]:s_1234[1]+1]):
     print "%s/%s"%(w,p)
-
---- 8< ---
+```
 
 In order to test the CWB.CL module's correct installation
 independently of any CQP corpora, you can do a
- python -m doctest tests/idlist.txt
+
+    python -m doctest tests/idlist.txt
+
 which should terminate with no output when everything is well.

@@ -25,6 +25,11 @@ change the value of the "extra_libs" variable in setup.py.
     # libglib2.0-0 libglib2.0-dev are required
     make compile
 
+If you don't have the Corpus Workbench installed, you can use a dockerized compilation:
+
+    # Build using Docker
+    make compile-docker
+
 # Usage
 
 To give you an idea how to use the library, see the following sample:

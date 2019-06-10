@@ -1,49 +1,41 @@
-#! /usr/bin/python
-# coding: iso-8859-1
+#!/usr/bin/env python
 
-# Name of this module: PyCQP
-# Version 2.0 (Febr. 2008)
-# Joerg Asmussen, DSL
-# some changes by Yannick Versley
-from __future__ import print_function
+"""
+Wrapper for CQP.
+"""
 
-# Import external standard Python modules used by this module:
 from __future__ import print_function
 import sys
 import os
 import re
 import random
-import string
 import time
+import select
+import subprocess
+import tempfile
 from six.moves import _thread as thread
 
-
-# Modules for running CQP as child process and pipe i/o
-# (standard in newer Python):
-import subprocess
-import select
-
 # GLOBAL CONSTANTS OF MODULE:
-cProgressControlCycle = 30  # secs between each progress control cycle
-cMaxRequestProcTime = 40  # max secs for processing a user request
-
-# ERROR MESSAGE TYPES:
-
+PROGRESS_CONTROL_CYCLE = 30  # secs between each progress control cycle
+MAX_REQUEST_PROC_TIME = 40  # max secs for processing a user request
 
 class ErrCQP:
-
+    """
+    Error message class for CQP
+    """
     def __init__(self, msg):
         self.msg = msg.rstrip()
 
 
 class ErrKilled:
-
+    """
+    Error message class for Process
+    """
     def __init__(self, msg):
         self.msg = msg.rstrip()
 
 
 class CQP:
-
     """
     Wrapper for CQP.
     """
@@ -52,17 +44,17 @@ class CQP:
         """
         CREATED: 2008-02
         This method is run as a thread.
-        At certain intervals (cProgressControlCycle), it controls how long the
+        At certain intervals (PROGRESS_CONTROL_CYCLE), it controls how long the
         CQP process of the current user has spent on processing this user's
         latest CQP command. If this time exceeds a certain maximun
-        (cMaxRequestProcTime), this method kills the CQP process.
+        (MAX_REQUEST_PROC_TIME), this method kills the CQP process.
         """
         self.runController = True
         while self.runController:
-            time.sleep(cProgressControlCycle)
-            if self.execStart != None:
+            time.sleep(PROGRESS_CONTROL_CYCLE)
+            if self.execStart is not None:
                 if time.time() - self.execStart > \
-                        cMaxRequestProcTime * self.maxProcCycles:
+                        MAX_REQUEST_PROC_TIME * self.maxProcCycles:
                     print(
                         '''WARNING!: PROGRESS CONTROLLER IDENTIFIED BLOCKING CQP PROCESS ID {}'''.format(self.CQP_process.pid), end='')
                     # os.kill(self.CQP_process.pid, SIGKILL) - doesn't work!
@@ -71,15 +63,17 @@ class CQP:
                     self.CQPrunning = False
                     break
 
-    def __init__(self, bin=None, options=''):
+    def __init__(self, binary=None, options=''):
+
+        self.runController = None
         self.execStart = time.time()
         self.maxProcCycles = 1.0
 
         # start CQP as a child process of this wrapper
-        if bin == None:
+        if binary is None:
             raise RuntimeError('Path to CQP binaries undefined')
 
-        self.CQP_process = subprocess.Popen(bin + ' ' + options,
+        self.CQP_process = subprocess.Popen(binary + ' ' + options,
                                             shell=True,
                                             stdin=subprocess.PIPE,
                                             stdout=subprocess.PIPE,
@@ -104,12 +98,7 @@ class CQP:
         self.compile_date = match.group(4)
 
         # We need cqp-2.2.b41 or newer (for query lock):
-        if not (
-            self.major_version >= 3
-            or (self.major_version == 2
-                and self.minor_version == 2
-                and self.beta_version >= 41)
-        ):
+        if not (self.major_version >= 3 or (self.major_version == 2 and self.minor_version == 2 and self.beta_version >= 41)):
             raise RuntimeError('CQP {} version is too old'.format(version_string))
 
         # Error handling:
@@ -133,9 +122,12 @@ class CQP:
         self.runController = False
 
     def SetProcCycles(self, procCycles):
-        print("    Setting procCycles to {}".format(procCycles))
+        """
+        Set process cycles
+        """
+        print("Setting procCycles to {}".format(procCycles))
         self.maxProcCycles = procCycles
-        return int(self.maxProcCycles * cMaxRequestProcTime)
+        return int(self.maxProcCycles * MAX_REQUEST_PROC_TIME)
 
     def __del__(self):
         if self.CQPrunning:
@@ -230,11 +222,14 @@ class CQP:
         """
         Dumps named query result into table of corpus positions
         """
-        if first != None and last == None:
+        first = ''
+        last = ''
+
+        if first is not None and last is None:
             last = first
-        elif last != None and first == None:
+        elif last is not None and first is None:
             first = last
-        if first != None:
+        if first is not None:
             first = str(first)
             last = str(last)
             regexp = re.compile(r'^[0-9]+$')
@@ -242,8 +237,7 @@ class CQP:
                 print(
                     "ERROR: Invalid value for first ({}) or last ({}) line in Dump() method".format(first, last), file=sys.stderr)
                 sys.exit(1)
-        else:
-            first=last=''
+
         matches = []
         result = re.split(r'\n', self.Exec('dump ' + subcorpus +
                                            " " + first + " " + last))
@@ -251,10 +245,13 @@ class CQP:
             matches.append(re.split(r'\t', line))
         return matches
 
-    def Undump(self, subcorpus='Last', table=[]):
+    def Undump(self, subcorpus='Last', table=None):
         """
         Undumps named query result from table of corpus positions
         """
+        if not table:
+            table = []
+
         wth = ''  # undump with target and keyword
         n_el = None  # number of anchors for each match
                     # (will be determined from first row)
@@ -265,7 +262,7 @@ class CQP:
         tf.write(str(n_matches) + '\n')
         for row in table:
             row_el = len(row)
-            if n_el == None:
+            if n_el is None:
                 n_el = row_el
                 if (n_el < 2) or (n_el > 4):
                     print(
@@ -279,12 +276,9 @@ class CQP:
                 if n_el == 4:
                     wth = wth + ' keyword'
             elif row_el != n_el:
-                print (
-                    "ERROR: All rows in undump table must have the same " + \
-                    "length (first row = " + str(n_el) + ", this row = " + \
-                    str(row_el) + ")", file=sys.sterr)
+                print("ERROR: All rows in undump table must have the same " + "length (first row = " + str(n_el) + ", this row = " + str(row_el) + ")", file=sys.stderr)
                 sys.exit(1)
-            tf.write(string.join(row, '\t') + '\n')
+            tf.write('\t'.join(row) + '\n')
         tf.close()
         # Send undump command with filename of temporary file:
         self.Exec("undump " + subcorpus + " " + wth + " < '" + filename + "'")
@@ -334,7 +328,7 @@ class CQP:
         Computes frequency distribution for match strings,
         based on sort clause
         """
-        if sort_clause == None:
+        if sort_clause is None:
             print(
                 "ERROR: Parameter 'sort_clause' undefined in Count() method",
                 file=sys.stderr)
@@ -382,9 +376,9 @@ class CQP:
         Simplified interface for checking for CQP errors
         """
         if self.CQPrunning:
-            return (self.Status() == 'ok')
-        else:
-            return False
+            return self.Status() == 'ok'
+
+        return False
 
     def Error_message(self):
         """
@@ -392,17 +386,18 @@ class CQP:
         """
         if self.CQPrunning:
             return ErrCQP(self.error_message)
-        else:
-            msgKilled = '**** CQP KILLED ***\n' + \
-                'CQP COULD NOT PROCESS YOUR REQUEST\n'
-            return ErrKilled(msgKilled + self.error_message)
+
+        msgKilled = '**** CQP KILLED ***\n' + \
+                    'CQP COULD NOT PROCESS YOUR REQUEST\n'
+
+        return ErrKilled(msgKilled + self.error_message)
 
     def Error(self, msg):
         """
         Processes/outputs error messages
         (optionally run through user-defined error handler)
         """
-        if self.error_handler != None:
+        if self.error_handler is not None:
             self.error_handler(msg)
         else:
             print(msg, file=sys.stderr)

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fau-klue/cwb3-python.svg?branch=master)](https://travis-ci.org/fau-klue/cwb3-python)
+
 # CWB Python
 
 This is a Python wrapper to the low-level API of CQP which allows

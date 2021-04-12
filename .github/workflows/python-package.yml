@@ -28,18 +28,12 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pylint pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Python Linter
-      uses: rahul-deepsource/pyaction@1.4.0
-      with:
-        python-root-list: "cwb_python/ examples/"
-        use-pycodestyle: false
-        use-mypy: false
-        use-vulture: false
-        use-black: false
-        use-flake8: false
-        use-isort: false
-        use-pylint: true
-        extra-pylint-options: "--output-format='colorized'"
+    - name: Lint code
+      run: |
+        pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
+    - name: Lint examples
+      run: |
+        pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
     - name: Test with pytest
       run: |
         pytest

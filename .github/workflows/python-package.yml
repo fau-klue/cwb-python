@@ -28,9 +28,11 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install pylint pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with pylint
-      run: |
-        pylint **/*.py
+    - name: Python Linter
+      uses: rahul-deepsource/pyaction@1.4.0
+      with:
+        python-root-list: "cwb_python/ examples/"
+        extra-pylint-options: "--output-format="colorized"
     - name: Test with pytest
       run: |
         pytest

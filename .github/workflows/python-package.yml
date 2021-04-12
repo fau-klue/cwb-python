@@ -29,9 +29,11 @@ jobs:
         python -m pip install pylint pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint code
+      continue-on-error: true
       run: |
         pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
     - name: Lint examples
+      continue-on-error: true
       run: |
         pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
     - name: Test with pytest

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/fau-klue/cwb3-python.svg?branch=master)](https://travis-ci.org/fau-klue/cwb3-python)
+[![Python package](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml/badge.svg)](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml)
 
 # CWB Python
 

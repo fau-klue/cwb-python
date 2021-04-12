@@ -32,6 +32,13 @@ jobs:
       uses: rahul-deepsource/pyaction@1.4.0
       with:
         python-root-list: "cwb_python/ examples/"
+        use-pycodestyle: false
+        use-mypy: false
+        use-vulture: false
+        use-blake: false
+        use-flake8: false
+        use-isort: false
+        use-pylint: true
         extra-pylint-options: "--output-format='colorized'"
     - name: Test with pytest
       run: |

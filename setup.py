@@ -3,8 +3,7 @@
 
 import io
 import os
-import sys
-from setuptools import find_packages, Command
+from setuptools import find_packages
 from distutils.core import setup
 from distutils.extension import Extension
 
@@ -12,11 +11,11 @@ from distutils.extension import Extension
 # Package meta-data.
 NAME = 'cwb-python'
 DESCRIPTION = 'CQP and CL interfaces for Python'
-URL = 'https://bitbucket.org/yannick/cwb-python'
+URL = 'https://github.com/fau-klue/cwb-python/'
 EMAIL = 'yversley@googlemail.com'
 AUTHOR = 'Yannick Versley / Jorg Asmussen'
-REQUIRES_PYTHON = '>=3.5.0'
-VERSION = '0.2.1'
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '0.2.3'
 
 REQUIRED = [
 ]
@@ -32,7 +31,7 @@ if 'CWB_DIR' in os.environ:
     cqp_dir = os.environ['CWB_DIR']
 else:
     # TODO: Make dynamic if possible
-    cqp_location = '/usr/local/cwb-3.4.14/bin/cqp'
+    cqp_location = '/usr/local/bin/cqp'
     cqp_dir = os.path.dirname(cqp_location)
 
 
@@ -43,21 +42,23 @@ try:
 except FileNotFoundError:
     long_description = DESCRIPTION
 
+
 # Import Cython if available
 try:
     from Cython.Build import cythonize
     CYTHON_INSTALLED = True
     # Cython Code
-    extensions =[Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.pyx'],
-                           library_dirs=[os.path.join(cqp_dir, 'lib')],
-                           libraries=['cl'] + extra_libs)]
+    extensions = [Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.pyx'],
+                            library_dirs=[os.path.join(cqp_dir, 'lib')],
+                            libraries=['cl'] + extra_libs)]
+
 except ImportError:
-    cythonize = lambda x, *args, **kwargs: x # dummy func
+    cythonize = lambda x, *args, **kwargs: x  # dummy func
     CYTHON_INSTALLED = False
     # Already compiled Cython
-    extensions =[Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.c'],
-                           library_dirs=[os.path.join(cqp_dir, 'lib')],
-                           libraries=['cl'] + extra_libs)]
+    extensions = [Extension('cwb_python.CWB.CL', ['cwb_python/CWB/CL.c'],
+                            library_dirs=[os.path.join(cqp_dir, 'lib')],
+                            libraries=['cl'] + extra_libs)]
 
 
 setup(
@@ -80,4 +81,5 @@ setup(
             'cqp_bitext = CWB.tools.make_bitext:main',
             'cqp_vocab = CWB.tools.cqp2vocab:cqp2vocab_main'
         ]},
-    package_dir={'cwb-python': 'cwb_python'})
+    package_dir={'cwb-python': 'cwb_python'}
+)

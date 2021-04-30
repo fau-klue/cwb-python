@@ -2,9 +2,9 @@
 
 import io
 import os
-from os import popen
 from setuptools import find_packages
 from distutils.core import setup, Extension
+from pathlib import Path
 
 
 # Package meta-data
@@ -27,9 +27,14 @@ extra_libs = ['pcre', 'glib-2.0']
 if 'CWB_DIR' in os.environ:
     cwb_dir = os.environ['CWB_DIR']
 else:
-    cqp_location = popen('which cqp').read().rstrip()
-    cwb_dir = os.path.dirname(cqp_location)
+    cqp_location = os.popen('which cqp').read().rstrip()
+    if cqp_location != "":
+        cwb_dir = Path(cqp_location).parents[1]
+    else:
+        # best guess
+        cwb_dir = "/usr/local/cwb/"
 
+print('using "%s" as CWB directory' % cwb_dir)
 
 # Import the README and use it as the long-description.
 try:

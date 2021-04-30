@@ -1,12 +1,13 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 
 import io
 import os
+from os import popen
 from setuptools import find_packages
 from distutils.core import setup, Extension
 
-# Package meta-data.
+
+# Package meta-data
 NAME = 'cwb-python'
 DESCRIPTION = 'CQP and CL interfaces for Python'
 URL = 'https://github.com/fau-klue/cwb-python/'
@@ -26,8 +27,8 @@ extra_libs = ['pcre', 'glib-2.0']
 if 'CWB_DIR' in os.environ:
     cwb_dir = os.environ['CWB_DIR']
 else:
-    # TODO: Make dynamic if possible
-    cwb_dir = '/usr/local/cwb'
+    cqp_location = popen('which cqp').read().rstrip()
+    cwb_dir = os.path.dirname(cqp_location)
 
 
 # Import the README and use it as the long-description.
@@ -45,7 +46,7 @@ ext = '.pyx' if USE_CYTHON else '.c'
 extensions = [
     Extension(name='cwb.cl',
               sources=['cwb/cl' + ext],
-              library_dirs=[os.path.join(cwb_dir, 'lib')],
+              library_dirs=[os.path.join(cwb_dir, 'include')],
               libraries=['cl'] + extra_libs)
 ]
 

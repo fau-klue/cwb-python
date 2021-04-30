@@ -21,27 +21,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install CWB
       run: |
-        sudo apt install --no-install-recommends -y \
-        apt-utils \
-        autoconf \
-        bison \
-        flex \
-        gcc \
-        libc6-dev \
-        libglib2.0-0 \
-        libglib2.0-dev \
-        libncurses5 \
-        libncurses5-dev \
-        libpcre3-dev \
-        libreadline8 \
-        libreadline-dev \
-        make \
-        pkg-config \
-        subversion
-        svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk /cwb
-        cd /cwb
-        ./install-scripts/install-linux
-        mv /usr/local/cwb-* /usr/local/cwb
+        sudo apt-get install libncurses5-dev
+        svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk cwb
+        sudo ./cwb/install-scripts/install-linux
+        mv /usr/local/cwb-* /usr/local/cwb      
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

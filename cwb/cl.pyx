@@ -1,3 +1,4 @@
+# cython: language_level=2
 import codecs
 from cpython.version cimport PY_MAJOR_VERSION
 
@@ -418,16 +419,16 @@ cdef class AlignAttrib:
     return cl_max_alg(self.att)
 
 
-def test():
-    cdef Corpus corpus
-    cdef c_Attribute *att
-    cdef int i
-    corpus=Corpus("FEMME")
-    print repr(corpus)
-    attr=corpus.attribute("word",'p')
-    print attr[0:4]
-    attr2=AttStruc(corpus,"s")
-    print len(attr2), attr2[23]
-    rng=attr2[23]
-    print attr[rng[0]:rng[1]]
-    print list(attr.find("femme"))
+# def test():
+#     cdef Corpus corpus
+#     cdef c_Attribute *att
+#     cdef int i
+#     corpus=Corpus("FEMME")
+#     print repr(corpus)
+#     attr=corpus.attribute("word",'p')
+#     print attr[0:4]
+#     attr2=AttStruc(corpus,"s")
+#     print len(attr2), attr2[23]
+#     rng=attr2[23]
+#     print attr[rng[0]:rng[1]]
+#     print list(attr.find("femme"))

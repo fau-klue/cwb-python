@@ -1,4 +1,5 @@
-#include "cmph.h"
+# cython: language_level=2
+# include "cmph.h"
 
 cdef class CMPH:
   def __init__(self,fname):

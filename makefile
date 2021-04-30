@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: build dist
 install:
 	pipenv install --dev
 test:
@@ -12,6 +12,7 @@ compile:
 build:
 	pipenv run python3 setup.py build_ext --inplace
 dist:
-	pipenv run python3 setup.py sdist
+	pip3 install --upgrade setuptools wheel
+	python3 setup.py sdist bdist_wheel
 clean:
 	rm -rf *.egg-info build dist/ cwb/*.so doc/_build/

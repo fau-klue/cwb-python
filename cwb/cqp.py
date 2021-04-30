@@ -1,10 +1,13 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Version 2.0 of "PyCQP" by Joerg Asmussen, DSL (Febr. 2008)
+# Some changes by Philipp Heinrich (2021)
 
 """
 Wrapper for CQP.
 """
 
-from __future__ import print_function
 import sys
 import os
 import re
@@ -13,11 +16,12 @@ import time
 import select
 import subprocess
 import tempfile
-from six.moves import _thread as thread
+import threading
+
 
 # GLOBAL CONSTANTS OF MODULE:
-PROGRESS_CONTROL_CYCLE = 30  # secs between each progress control cycle
-MAX_REQUEST_PROC_TIME = 40  # max secs for processing a user request
+PROGRESS_CONTROL_CYCLE = 5  # secs between each progress control cycle
+MAX_REQUEST_PROC_TIME = 60  # max secs for processing a user request
 
 
 class ErrCQP:
@@ -57,18 +61,23 @@ class CQP:
                 if time.time() - self.execStart > \
                         MAX_REQUEST_PROC_TIME * self.maxProcCycles:
                     print(
-                        '''WARNING!: PROGRESS CONTROLLER IDENTIFIED BLOCKING CQP PROCESS ID {}'''.format(self.CQP_process.pid), end='')
+                        '''WARNING!: PROGRESS CONTROLLER IDENTIFIED BLOCKING CQP PROCESS ID {}'''.format(self.CQP_process.pid),
+                        file=sys.stderr
+                    )
                     # os.kill(self.CQP_process.pid, SIGKILL) - doesn't work!
                     os.popen("kill -9 " + str(self.CQP_process.pid))  # works!
                     print("=> KILLED!")
                     self.CQPrunning = False
                     break
 
-    def __init__(self, binary=None, options=''):
+    def __init__(self, binary='/usr/local/bin/cqp', options='-c', print_version=False):
+        """Class constructor."""
 
+        self.CQPrunning = False
         self.runController = None
         self.execStart = time.time()
         self.maxProcCycles = 1.0
+
         # start CQP as a child process of this wrapper
         if binary is None:
             raise RuntimeError('Path to CQP binaries undefined')
@@ -77,18 +86,28 @@ class CQP:
                                             stdin=subprocess.PIPE,
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
-                                            close_fds=True)
+                                            universal_newlines=True,
+                                            close_fds=True,
+                                            preexec_fn=os.setsid)
         self.CQPrunning = True
-        thread.start_new_thread(self._progressController, ())
+
+        # init progress controller
+        progressthread = threading.Thread(target=self._progressController, args=())
+        progressthread.setDaemon(True)
+        progressthread.start()
+
         # "cqp -c" should print version on startup:
         version_string = self.CQP_process.stdout.readline()
         version_string = version_string.rstrip()  # Equivalent to Perl's chomp
-        print(version_string, file=sys.stderr)
+        self.CQP_process.stdout.flush()
+        if print_version:
+            print(version_string)
         version_regexp = re.compile(
-            r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$')
+            r'^CQP\s+(?:\w+\s+)*([0-9]+)\.([0-9]+)(?:\.b?([0-9]+))?(?:\s+(.*))?$'
+        )
         match = version_regexp.match(version_string)
         if not match:
-            print("ERROR: CQP backend startup failed", file=sys.stderr)
+            print("CQP backend startup failed", file=sys.stderr)
             sys.exit(1)
         self.major_version = int(match.group(1))
         self.minor_version = int(match.group(2))
@@ -164,6 +183,7 @@ class CQP:
         # strings which then are to be structured by the client module.
         # The server does not emit pickled data according to some
         # language dependent protocol.
+        self.CQP_process.stdin.flush()
         result = ''
         while self.CQPrunning:
             ln = self.CQP_process.stdout.readline()
@@ -176,9 +196,10 @@ class CQP:
                 print("CQP >> "+ln)
             if ln != '':
                 result = result + ln + '\n'
-        result = result.rstrip()  # strip off whitespace from EOL (\n)
         self.Checkerr()
         self.execStart = None
+        result = '\n'.join(result)
+        result = result.rstrip()  # strip off whitespace from EOL (\n)
         return result
 
     def Query(self, query):
@@ -226,7 +247,9 @@ class CQP:
             regexp = re.compile(r'^[0-9]+$')
             if (not regexp.match(first)) or (not regexp.match(last)):
                 print(
-                    "ERROR: Invalid value for first ({}) or last ({}) line in Dump() method".format(first, last), file=sys.stderr)
+                    "ERROR: Invalid value for first ({}) or last ({}) line in Dump() method".format(first, last),
+                    file=sys.stderr
+                )
                 sys.exit(1)
 
         matches = []
@@ -243,9 +266,9 @@ class CQP:
         if not table:
             table = []
 
-        wth = ''  # undump with target and keyword
-        n_el = None  # number of anchors for each match
-                    # (will be determined from first row)
+        wth = ''               # undump with target and keyword
+        n_el = None            # number of anchors for each match
+        # (will be determined from first row)
         n_matches = len(table)  # number of matches (= remaining arguments)
         # We have to read undump table from temporary file:
         tf = tempfile.NamedTemporaryFile(prefix='pycqp_undump_')
@@ -257,17 +280,21 @@ class CQP:
                 n_el = row_el
                 if (n_el < 2) or (n_el > 4):
                     print(
-                        "ERROR: Row arrays in undump table must have " + \
-                        "between 2 and 4 elements (first row has " + \
+                        "ERROR: Row arrays in undump table must have " +
+                        "between 2 and 4 elements (first row has " +
                         str(n_el) + " elements)",
-                        file=sys.stderr)
+                        file=sys.stderr
+                    )
                     sys.exit(1)
                 if n_el >= 3:
                     wth = 'with target'
                 if n_el == 4:
                     wth = wth + ' keyword'
             elif row_el != n_el:
-                print("ERROR: All rows in undump table must have the same " + "length (first row = " + str(n_el) + ", this row = " + str(row_el) + ")", file=sys.stderr)
+                print(
+                    "ERROR: All rows in undump table must have the same " + "length (first row = " + str(n_el) + ", this row = " + str(row_el) + ")",
+                    file=sys.stderr
+                )
                 sys.exit(1)
             tf.write('\t'.join(row) + '\n')
         tf.close()
@@ -329,11 +356,11 @@ class CQP:
     # We don't want to return a data structure other than a string in order to
     # send it across a server line without pickling.
     # The work of structuring the data must be done by the client part
-    #		  rows = []
-    #		  for line in result:
-    #			  size, first, string = re.split(r'\t', line)
-    #			  rows.append([size, string, first, int(first) + int(size) - 1])
-    #		  return rows
+    # rows = []
+    # for line in result:
+    #   size, first, string = re.split(r'\t', line)
+    #   rows.append([size, string, first, int(first) + int(size) - 1])
+    # return rows
 
     def Checkerr(self):
         """

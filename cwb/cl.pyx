@@ -56,7 +56,7 @@ cdef class Corpus:
         else:
             return s
   def __repr__(self):
-      return "cwb.CL.Corpus('%s')"%(self.name)
+      return "CWB.CL.Corpus('%s')"%(self.name)
   def __dealloc__(self):
     if self.corpus!=NULL:
       cl_delete_corpus(self.corpus)
@@ -215,7 +215,7 @@ cdef class AttrDictionary
 
 cdef class PosAttrib:
   def __repr__(self):
-    return "cwb.Attribute(%s,'%s')"%(self.parent,self.attname)
+    return "CWB.Attribute(%s,'%s')"%(self.parent,self.attname)
   def __cinit__(self,Corpus parent,attname):
     self.parent=parent
     self.attname=attname

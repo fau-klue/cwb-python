@@ -5,14 +5,14 @@
 This is a Python wrapper to the low-level API of CQP which allows you
 to access CWB corpora in the same way as Perl's CWB::CL.
 
-If you installed CQP in a non-standard location, point the setup in
-the right direction with
+Make sure installed CWB in the standard location (`/usr/local` tree).
+If you installed CWB in a non-standard location, point the setup in
+the right direction with e.g.
 
     export CWB_DIR=/usr/local/cwb-3.4.10
 
-To install the module, use the standard command sequence.
+To install the module, use setup.py:
 
-    python setup.py build
     sudo python setup.py install
 
 # Cython Compilation
@@ -24,7 +24,7 @@ If you want to re-generate the .c files, you need Cython:
 
     pip install Cython
 
-You can then compile the Cython code to C
+You can then compile the Cython code to C via
 
     cython -2 cwb_python/CWB/CL.pyx
     
@@ -34,7 +34,7 @@ You can compile the C code via
 
     pipenv run python setup.py build_ext --inplace
     
-or just create a source distribution
+or just build (see above) or create a source distribution
 
     pipenv run python setup.py sdist
 

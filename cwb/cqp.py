@@ -87,8 +87,7 @@ class CQP:
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
                                             universal_newlines=True,
-                                            close_fds=True,
-                                            preexec_fn=os.setsid)
+                                            close_fds=True)
         self.CQPrunning = True
 
         # init progress controller

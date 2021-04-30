@@ -1,16 +1,18 @@
+.PHONY: build dist
 install:
 	pipenv install --dev
 test:
 	pipenv run pytest -v
 lint:
-	pipenv run pylint --rcfile=.pylintrc cwb_python/*.py
+	pipenv run pylint --rcfile=.pylintrc cwb/*.py
 coverage:
-	pipenv run pytest --cov-report term-missing -v --cov=cwb_python
+	pipenv run pytest --cov-report term-missing -v --cov=cwb/
 compile:
-	pipenv run python3 setup.py build_ext --inplace
-compile-docker:
-	bash docker-compile.sh
+	pipenv run cython -2 cwb/cl.pyx
 build:
-	pipenv run python3 setup.py sdist
+	pipenv run python3 setup.py build_ext --inplace
+dist:
+	pip3 install --upgrade setuptools wheel
+	python3 setup.py sdist bdist_wheel
 clean:
-	rm -rf *.egg-info build/ dist/ cwb_python/CWB/*.so cwb_python/CWB/*.c cwb_python/CWB/*.h
+	rm -rf *.egg-info build dist/ cwb/*.so doc/_build/

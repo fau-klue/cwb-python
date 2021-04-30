@@ -25,17 +25,17 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt install libglib2.0-0 libglib2.0-dev
         python -m pip install --upgrade pip
-        python -m pip install pylint pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        python -m pip install -q pipenv
+        make install
+    - name: Build
+      run: |
+        make build
     - name: Lint code
       continue-on-error: true
       run: |
-        pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
-    - name: Lint examples
-      continue-on-error: true
-      run: |
-        pylint --rcfile=.pylintrc --output-format='colorized' cwb_python/
+        make lint
     - name: Test with pytest
       run: |
-        pytest
+        make test

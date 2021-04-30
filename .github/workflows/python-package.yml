@@ -35,11 +35,15 @@ jobs:
     - name: Build
       run: |
         make build
-    - name: Build manylinux Python wheels
-      uses: RalfG/python-wheels-manylinux-build@v0.3.4-manylinux2010_x86_64
+    - name: Dist
+      run: |
+        pip3 install --upgrade setuptools wheel
+        python3 setup.py sdist bdist_wheel
+    - name: Archive builds
+      uses: actions/upload-artifact@v2
       with:
-        python-versions: 'cp36-cp36m cp37-cp37m cp38-cp38m'
-        build-requirements: 'cython'
+        name: whl-${{ matrix.python-version }}
+        path: dist/cwb_python-0.3.0-py{{ matrix.python-version }}-linux-x86_64.egg
     - name: Lint code
       continue-on-error: true
       run: |

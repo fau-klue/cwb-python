@@ -37,13 +37,12 @@ jobs:
         make build
     - name: Dist
       run: |
-        pip3 install --upgrade setuptools wheel
-        python3 setup.py sdist bdist_wheel
+        make dist
     - name: Archive builds
       uses: actions/upload-artifact@v2
       with:
-        name: whl-${{ matrix.python-version }}
-        path: dist/cwb_python-0.3.0-py{{ matrix.python-version }}-linux-x86_64.egg
+        name: dist-${{ matrix.python-version }}
+        path: dist/
     - name: Lint code
       continue-on-error: true
       run: |

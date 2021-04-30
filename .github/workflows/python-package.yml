@@ -24,8 +24,8 @@ jobs:
         sudo apt-get install libncurses5-dev
         svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk cwb
         cd cwb
+        sed -i 's/SITE=beta-install/SITE=standard/' config.mk
         sudo ./install-scripts/install-linux
-        sudo mv /usr/local/cwb-* /usr/local/cwb
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:

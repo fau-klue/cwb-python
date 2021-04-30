@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04
 
 # install cwb dependencies
 RUN apt-get update && \
@@ -23,20 +23,20 @@ RUN apt-get update && \
     python3 \
     python3-dev \
     python3-setuptools \
-    cython3
+    cython3 \
+    less \
+    mg
 
 
 # Download latest cwb source
 RUN svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk /cwb
 
-# Run install script and Move to unified location
+# Set installation directory to standard (/usr/local tree) and run install script 
 WORKDIR /cwb
+RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk
 RUN ./install-scripts/install-linux
-RUN mv /usr/local/cwb-* /usr/local/cwb
-
-# Copy all files
-COPY . /src
-WORKDIR /src
 
 # Compile
+COPY . /cwb-python
+WORKDIR /cwb-python
 RUN python3 setup.py build_ext --inplace

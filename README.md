@@ -1,10 +1,12 @@
+[![Python package](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml/badge.svg)](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml)
+
 # CWB Python
 
-This is a Python wrapper to the low-level API of CQP which allows
-you to access CQP corpora in the same way as Perl's CWB::CL
+This is a Python wrapper to the low-level API of CQP which allows you
+to access CWB corpora in the same way as Perl's CWB::CL.
 
-If you installed CQP in a non-standard location (which is the default for
-newer versions of CQP), point the setup in the right direction with, e.g.
+If you installed CQP in a non-standard location, point the setup in
+the right direction with
 
     export CWB_DIR=/usr/local/cwb-3.4.10
 
@@ -13,17 +15,36 @@ To install the module, use the standard command sequence.
     python setup.py build
     sudo python setup.py install
 
-As a prerequisite, install Cython with
+# Cython Compilation
+
+The module ships with the generated .c files, so you do not need
+Cython for the installation.
+
+If you want to re-generate the .c files, you need Cython:
 
     pip install Cython
 
-If you use an old version of CQP (CWB 2.99 and older), you need to
-change the value of the "extra_libs" variable in setup.py.
+You can then compile the Cython code to C
+
+    cython -2 cwb_python/CWB/CL.pyx
+    
+# C Compilation
+
+You can compile the C code via
+
+    pipenv run python setup.py build_ext --inplace
+    
+or just create a source distribution
+
+    pipenv run python setup.py sdist
+
+# Usage
 
 To give you an idea how to use the library, see the following sample:
 
 ```python
 from CWB.CL import Corpus
+from PyCQP_interface import CQP
 
 # open the corpus
 corpus=Corpus('TUEPP')
@@ -38,6 +59,7 @@ for w,p in zip(words[s_1234[0]:s_1234[1]+1],postags[s_1234[0]:s_1234[1]+1]):
     print "%s/%s"%(w,p)
 ```
 
+# Tests
 In order to test the CWB.CL module's correct installation
 independently of any CQP corpora, you can do a
 

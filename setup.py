@@ -13,7 +13,7 @@ DESCRIPTION = 'CQP and CL interfaces for Python'
 URL = 'https://github.com/fau-klue/cwb-python/'
 EMAIL = 'yversley@googlemail.com'
 AUTHOR = 'Yannick Versley'
-REQUIRES_PYTHON = '>=3.5.0'
+REQUIRES_PYTHON = '>=3.6.0'
 VERSION = '0.3.0'
 
 REQUIRED = [
@@ -28,8 +28,7 @@ if 'CWB_DIR' in os.environ:
     cwb_dir = os.environ['CWB_DIR']
 else:
     # TODO: Make dynamic if possible
-    cqp_location = '/usr/local/bin/cqp'
-    cwb_dir = os.path.dirname(cqp_location)
+    cwb_dir = os.path.dirname('/usr/local/include/cwb')
 
 
 # Import the README and use it as the long-description.
@@ -43,11 +42,12 @@ except FileNotFoundError:
 # Register extension
 USE_CYTHON = False              # use cython -2 cwb_python/CWB/CL.pyx instead
 ext = '.pyx' if USE_CYTHON else '.c'
+print(cwb_dir)
 
 extensions = [
     Extension(name='cwb.cl',
               sources=['cwb/cl' + ext],
-              library_dirs=[os.path.join(cwb_dir, 'lib')],
+              library_dirs=[cwb_dir],
               libraries=['cl'] + extra_libs)
 ]
 

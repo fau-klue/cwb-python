@@ -27,7 +27,7 @@ if 'CWB_DIR' in os.environ:
     cwb_dir = os.environ['CWB_DIR']
 else:
     # TODO: Make dynamic if possible
-    cwb_dir = os.path.dirname('/usr/local/cwb')
+    cwb_dir = '/usr/local/cwb'
 
 
 # Import the README and use it as the long-description.
@@ -41,7 +41,6 @@ except FileNotFoundError:
 # Register extension
 USE_CYTHON = False              # use cython -2 cwb_python/CWB/CL.pyx instead
 ext = '.pyx' if USE_CYTHON else '.c'
-print(cwb_dir)
 
 extensions = [
     Extension(name='cwb.cl',

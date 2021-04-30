@@ -13,8 +13,8 @@ DESCRIPTION = 'CQP and CL interfaces for Python'
 URL = 'https://github.com/fau-klue/cwb-python/'
 EMAIL = 'yversley@googlemail.com'
 AUTHOR = 'Yannick Versley'
-REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.2.3'
+REQUIRES_PYTHON = '>=3.5.0'
+VERSION = '0.3.0'
 
 REQUIRED = [
 ]
@@ -25,11 +25,11 @@ here = os.path.abspath(os.path.dirname(__file__))
 extra_libs = ['pcre', 'glib-2.0']
 
 if 'CWB_DIR' in os.environ:
-    cqp_dir = os.environ['CWB_DIR']
+    cwb_dir = os.environ['CWB_DIR']
 else:
     # TODO: Make dynamic if possible
     cqp_location = '/usr/local/bin/cqp'
-    cqp_dir = os.path.dirname(cqp_location)
+    cwb_dir = os.path.dirname(cqp_location)
 
 
 # Import the README and use it as the long-description.
@@ -45,9 +45,9 @@ USE_CYTHON = False              # use cython -2 cwb_python/CWB/CL.pyx instead
 ext = '.pyx' if USE_CYTHON else '.c'
 
 extensions = [
-    Extension(name='CWB.CL',
-              sources=['cwb_python/CWB/CL' + ext],
-              library_dirs=[os.path.join(cqp_dir, 'lib')],
+    Extension(name='cwb.cl',
+              sources=['cwb/cl' + ext],
+              library_dirs=[os.path.join(cwb_dir, 'lib')],
               libraries=['cl'] + extra_libs)
 ]
 
@@ -71,9 +71,9 @@ setup(
     py_modules=['CQP'],
     entry_points={
         'console_scripts': [
-            'cqp2conll = CWB.tools.cqp2conll:main',
-            'cqp_bitext = CWB.tools.make_bitext:main',
-            'cqp_vocab = CWB.tools.cqp2vocab:cqp2vocab_main'
+            'cqp2conll = cwb.tools.cqp2conll:main',
+            'cqp_bitext = cwb.tools.make_bitext:main',
+            'cqp_vocab = cwb.tools.cqp2vocab:cqp2vocab_main'
         ]},
     package_dir={'cwb-python': 'cwb_python'}
 )

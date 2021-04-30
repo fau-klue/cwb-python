@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,14 +25,13 @@ jobs:
         svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk cwb
         cd cwb
         sudo ./install-scripts/install-linux
-        sudo mv /usr/local/cwb-* /usr/local/cwb      
+        sudo mv /usr/local/cwb-* /usr/local/cwb
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt install libglib2.0-0 libglib2.0-dev
         python -m pip install --upgrade pip
         python -m pip install -q pipenv
         make install

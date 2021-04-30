@@ -3,12 +3,14 @@ install:
 test:
 	pipenv run pytest -v
 lint:
-	pipenv run pylint --rcfile=.pylintrc py_src/*.py
+	pipenv run pylint --rcfile=.pylintrc cwb/*.py
 coverage:
-	pipenv run pytest --cov-report term-missing -v --cov=py_src/
+	pipenv run pytest --cov-report term-missing -v --cov=cwb/
 compile:
-	pipenv run python3 setup.py build_ext --inplace
+	pipenv run cython -2 cwb/cl/cl.pyx
 build:
+	pipenv run python3 setup.py build_ext --inplace
+dist:
 	pipenv run python3 setup.py sdist
 clean:
-	rm -rf *.egg-info build
+	rm -rf *.egg-info build dist/ cwb/cl/*.so doc/_build/

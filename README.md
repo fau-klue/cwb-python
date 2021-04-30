@@ -43,8 +43,7 @@ or just create a source distribution
 To give you an idea how to use the library, see the following sample:
 
 ```python
-from CWB.CL import Corpus
-from PyCQP_interface import CQP
+from cwb.cl import Corpus
 
 # open the corpus
 corpus=Corpus('TUEPP')
@@ -60,6 +59,7 @@ for w,p in zip(words[s_1234[0]:s_1234[1]+1],postags[s_1234[0]:s_1234[1]+1]):
 ```
 
 # Tests
+
 In order to test the CWB.CL module's correct installation
 independently of any CQP corpora, you can do a
 

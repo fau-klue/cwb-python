@@ -6,7 +6,6 @@ import os
 from setuptools import find_packages
 from distutils.core import setup, Extension
 
-
 # Package meta-data.
 NAME = 'cwb-python'
 DESCRIPTION = 'CQP and CL interfaces for Python'
@@ -68,12 +67,12 @@ setup(
     ext_modules=extensions,
     install_requires=REQUIRED,
     include_package_data=True,
-    py_modules=['CQP'],
+    py_modules=['cqp'],
     entry_points={
         'console_scripts': [
             'cqp2conll = cwb.tools.cqp2conll:main',
             'cqp_bitext = cwb.tools.make_bitext:main',
             'cqp_vocab = cwb.tools.cqp2vocab:cqp2vocab_main'
         ]},
-    package_dir={'cwb-python': 'cwb_python'}
+    package_dir={'cwb': 'cwb'}
 )

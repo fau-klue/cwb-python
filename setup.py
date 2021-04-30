@@ -27,7 +27,7 @@ if 'CWB_DIR' in os.environ:
     cwb_dir = os.environ['CWB_DIR']
 else:
     # TODO: Make dynamic if possible
-    cwb_dir = os.path.dirname('/usr/local/include/cwb')
+    cwb_dir = os.path.dirname('/usr/local/cwb')
 
 
 # Import the README and use it as the long-description.
@@ -46,7 +46,7 @@ print(cwb_dir)
 extensions = [
     Extension(name='cwb.cl',
               sources=['cwb/cl' + ext],
-              library_dirs=[cwb_dir],
+              library_dirs=[os.path.join(cwb_dir, 'lib')],
               libraries=['cl'] + extra_libs)
 ]
 

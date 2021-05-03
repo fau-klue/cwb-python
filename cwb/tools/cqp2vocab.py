@@ -1,6 +1,6 @@
 import sys
 import optparse
-from CWB.CL import Corpus
+from cwb.cl import Corpus
 from collections import defaultdict
 
 try:

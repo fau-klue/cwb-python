@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import sys
 import optparse
-from CWB.CL import Corpus
+from cwb.cl import Corpus
 
 try:
     from pathconfig import load_configuration

@@ -1,5 +1,16 @@
 [![Python package](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml/badge.svg)](https://github.com/fau-klue/cwb-python/actions/workflows/python-package.yml)
 
+Note that cwb-python is **not actively maintained**. The most recent
+PyPI-version is [0.2.2](https://pypi.org/project/cwb-python/) from
+June 20, 2017. The code is identical to the
+[0.2.1-branch](https://github.com/fau-klue/cwb-python/tree/v0.2.1).
+
+If you are starting a new project using Python and the Corpus
+Workbench, **consider using
+[cwb-ccc](https://github.com/ausgerechnet/cwb-ccc),** which provides
+similar (and more) functionality.
+
+
 # CWB Python
 
 This is a Python wrapper to the low-level API of CQP which allows you
